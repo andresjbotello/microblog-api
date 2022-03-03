@@ -40,7 +40,11 @@ environment variables that are currently used:
 | `DISABLE_AUTH` | not defined | Whether to disable authentication. When running with authentication disabled, the user is assumed to be logged as the user with `id=1`, which must exist in the database. |
 | `ACCESS_TOKEN_MINUTES` | `15` | The number of minutes an access token is valid for. |
 | `REFRESH_TOKEN_DAYS` | `7` | The number of days a refresh token is valid for. |
+| `REFRESH_TOKEN_IN_COOKIE` | `yes` | Whether to return the refresh token in a secure cookie. |
+| `REFRESH_TOKEN_IN_BODY' | `no` | Whether to return the refresh token in the response body. |
 | `RESET_TOKEN_MINUTES` | `15` | The number of minutes a reset token is valid for. |
+| `PASSWORD_RESET_URL` | `http://localhost:3000/reset` | The URL that will be used in password reset links. |
+| `USE_CORS` | `yes` | Whether to allow cross-origin requests. If allowed, CORS support can be configured or customized with options provided by the Flask-CORS extension. |
 | `DOCS_UI` | `elements` | The UI library to use for the documentation. Allowed values are `swagger_ui`, `redoc`, `rapidoc` and `elements`. |
 | `MAIL_SERVER` | `localhost` | The mail server to use for sending emails. |
 | `MAIL_PORT` | `25` | The port to use for sending emails. |
@@ -84,12 +88,10 @@ response.
 This API supports a password reset flow, to help users who forget their
 passwords regain access to their accounts. To issue a password reset request,
 the client must send a `POST` request to `/api/tokens/reset`, passing the
-user's email and the path to a callback URL in the body of the request. The
-user will receive a password reset link by email, which is formed with the
-scheme, hostname and port obtained from the request's
-[Referrer](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referer),
-appended with the callback URL and a `token` query string argument set to an
-email reset token, with a validity of 15 minutes.
+user's email in the body of the request. The user will receive a password reset
+link by email, based on the password reset URL entered in the configuration
+and a `token` query string paramter set to an email reset token, with a
+validity of 15 minutes.
 
 When the user clicks on the password reset link, the client application must
 capture the `token` query string argument and send it in a `PUT` request to

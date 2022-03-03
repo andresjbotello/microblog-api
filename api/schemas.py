@@ -83,7 +83,10 @@ class UserSchema(ma.SQLAlchemySchema):
     def validate_username(self, value):
         if not value[0].isalpha():
             raise ValidationError('Username must start with a letter')
-        if db.session.scalar(User.select().filter_by(username=value)):
+        user = token_auth.current_user()
+        old_username = user.username if user else None
+        if value != old_username and \
+                db.session.scalar(User.select().filter_by(username=value)):
             raise ValidationError('Use a different username.')
 
     @post_dump
@@ -110,7 +113,8 @@ class PostSchema(ma.SQLAlchemySchema):
 
     id = ma.auto_field(dump_only=True)
     url = ma.String(dump_only=True)
-    text = ma.auto_field(required=True)
+    text = ma.auto_field(required=True, validate=validate.Length(
+        min=1, max=280))
     timestamp = ma.auto_field(dump_only=True)
     author = ma.Nested(UserSchema, dump_only=True)
 
@@ -134,7 +138,6 @@ class PasswordResetRequestSchema(ma.Schema):
 
     email = ma.String(required=True, validate=[validate.Length(max=120),
                                                validate.Email()])
-    callback_url = ma.String(required=True, validate=validate.Length(min=1))
 
 
 class PasswordResetSchema(ma.Schema):
